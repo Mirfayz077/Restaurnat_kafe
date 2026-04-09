@@ -1,218 +1,178 @@
 @extends('layouts.auth')
 
 @section('content')
-    <div class="grid w-full gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-        <section class="soft-panel rounded-[2rem] border border-white/10 p-8">
-            <p class="text-xs uppercase tracking-[0.35em] text-amber-200">Restaurant POS MVP</p>
-            <h1 class="mt-4 max-w-xl text-4xl font-semibold text-white">Login, branch flow va checkout bilan ishlaydigan birinchi versiya</h1>
-            <p class="mt-4 max-w-2xl text-sm leading-7 text-slate-300">
-                Tizimda admin, manager, cashier, waiter, chef va bartender rollari tayyor. Front-of-house, kitchen, bar, payment va basic report oqimi bitta loyihada jamlangan.
-            </p>
 
-            <div class="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                <div class="rounded-[1.5rem] border border-white/10 bg-slate-950/60 p-4">
-                    <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Admin</p>
-                    <p class="mt-2 text-sm text-white">admin</p>
-                    <p class="text-sm text-slate-400">admin456</p>
-                </div>
-                <div class="rounded-[1.5rem] border border-white/10 bg-slate-950/60 p-4">
-                    <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Manager</p>
-                    <p class="mt-2 text-sm text-white">manager</p>
-                    <p class="text-sm text-slate-400">manager456</p>
-                </div>
-                <div class="rounded-[1.5rem] border border-white/10 bg-slate-950/60 p-4">
-                    <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Cashier</p>
-                    <p class="mt-2 text-sm text-white">cashier</p>
-                    <p class="text-sm text-slate-400">cashier456</p>
-                </div>
-                <div class="rounded-[1.5rem] border border-white/10 bg-slate-950/60 p-4">
-                    <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Waiter</p>
-                    <p class="mt-2 text-sm text-white">waiter</p>
-                    <p class="text-sm text-slate-400">waiter456</p>
-                </div>
-                <div class="rounded-[1.5rem] border border-white/10 bg-slate-950/60 p-4">
-                    <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Chef</p>
-                    <p class="mt-2 text-sm text-white">chef</p>
-                    <p class="text-sm text-slate-400">chef456</p>
-                </div>
-                <div class="rounded-[1.5rem] border border-white/10 bg-slate-950/60 p-4">
-                    <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Bartender</p>
-                    <p class="mt-2 text-sm text-white">bartender</p>
-                    <p class="text-sm text-slate-400">bartender456</p>
-                </div>
-            </div>
-        </section>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
 body, html {
     margin: 0;
     padding: 0;
     font-family: 'Poppins', sans-serif;
-    background: rgb(2,6,23);
+    background: linear-gradient(135deg, #0f172a, #1e293b);
     color: #fff;
-    height: 100%;
-    overflow: hidden;
-}
-
-/* Particle background */
-#particles-js {
-    position: fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    z-index: 0;
-    pointer-events: none;
+    overflow-x: hidden;
 }
 
 .login-wrapper {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
     gap: 2rem;
+    min-height: 100vh;
+    align-items: center;
     padding: 2rem;
-    position: relative;
-    z-index: 2; /* panel particle ustida turadi */
 }
 
-/* Panels */
-.info-panel, .form-panel {
-    flex: 1;
-    max-width: 450px;
-    background: rgba(248, 246, 246, 0.05);
-    backdrop-filter: blur(18px);
-    border-radius: 20px;
+.soft-panel, .form-panel {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-radius: 2rem;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
     padding: 2.5rem;
-    box-shadow: 0 8px 32px rgba(36, 35, 35, 0.4);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    position: relative;
-    z-index: 2;
 }
 
-.info-panel:hover, .form-panel:hover {
+.soft-panel:hover, .form-panel:hover {
     transform: translateY(-5px);
-    box-shadow: 0 12px 36px rgba(0,0,0,0.5);
-}
-
-/* Info panel */
-.info-title {
-    font-size: 2rem;
-    font-weight: 600;
-    margin: 1rem 0;
-}
-
-.info-desc {
-    opacity: 0.85;
-    font-size: 0.95rem;
-    line-height: 1.5;
-}
-
-.badge-tag {
-    background: rgba(255, 255, 255, 0.178);
-    padding: 6px 14px;
-    border-radius: 14px;
-    font-weight: 500;
-    font-size: 12px;
-    display: inline-block;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
 }
 
 .role-cards {
-    display: flex;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
     margin-top: 2rem;
-    flex-wrap: wrap;
 }
 
 .role-card {
-    background: rgba(255,255,255,0.1);
-    padding: 14px 18px;
-    border-radius: 16px;
+    padding: 1rem;
+    border-radius: 1.5rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.2);
     cursor: pointer;
-    transition: transform 0.2s ease, background 0.3s ease;
-    min-width: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
     text-align: center;
     font-weight: 500;
+    transition: all 0.3s ease;
 }
 
 .role-card:hover {
-    background: rgba(255,255,255,0.2);
-    transform: scale(1.05);
+    background: rgba(250,204,21,0.15);
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 10px 25px rgba(250,204,21,0.4);
 }
 
-.role-label { display:block; font-size:14px; margin-bottom:4px; }
-.role-user { font-size:12px; opacity:0.8; }
+.form-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
 
-/* Form panel */
-.form-title { font-size:24px; font-weight:600; margin-bottom:0.5rem; }
-.form-subtitle { font-size:14px; color: rgba(255,255,255,0.6); margin-bottom:2rem; }
+.form-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
 
-.field-group { margin-bottom:1.5rem; position:relative; }
+.form-subtitle {
+    font-size: 0.95rem;
+    color: #f0e68c;
+}
+
+.field-group {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
 .field-group input {
-    width:100%;
-    padding:12px;
-    border-radius:12px;
-    border:none;
+    padding: 0.75rem 3rem 0.75rem 1rem; /* toggle button uchun right padding */
+    border-radius: 1rem;
+    border: none;
     background: rgba(255,255,255,0.1);
-    color:#fff;
-    font-size:14px;
-    backdrop-filter: blur(6px);
-    transition: 0.3s ease;
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+    width: 100%;
+    backdrop-filter: blur(10px);
 }
-.field-group input:focus {
-    background: rgba(255,255,255,0.2);
-    outline:none;
-    box-shadow: 0 0 0 2px rgba(99,102,241,0.5);
+
+.field-group input::placeholder {
+    color: rgba(255,255,255,0.6);
+}
+
+input:focus {
+    box-shadow: 0 0 0 3px rgba(250,204,21,0.4);
 }
 
 .toggle-pw {
-    position:absolute;
-    right:12px;
-    top:50%;
-    transform:translateY(-50%);
-    border:none;
-    background:none;
-    cursor:pointer;
-    color:#fff;
-    font-size:16px;
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #facc15;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: color 0.3s ease;
+    z-index: 10;
+}
+
+.toggle-pw:hover {
+    color: #ffd700;
 }
 
 .submit-btn {
-    width:100%;
-    padding:12px;
-    border-radius:16px;
-    background: linear-gradient(90deg,#6366f1,#4f46e5);
-    border:none;
-    font-weight:600;
-    cursor:pointer;
-    color:#fff;
-    font-size:16px;
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, #facc15, #fcd34d);
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
     transition: all 0.3s ease;
 }
+
 .submit-btn:hover {
-    background: linear-gradient(90deg,#4f46e5,#3730a3);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    background: linear-gradient(135deg, #eab308, #fbbf24);
+    transform: translateY(-2px) scale(1.02);
 }
 
-@media(max-width:768px){
-    .login-wrapper { flex-direction:column; }
+#particles-js {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    top: 0;
+    left: 0;
 }
 
+@media (max-width: 1024px) {
+    .login-wrapper {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 1rem;
+    }
+}
 </style>
 
-<!-- Particle container -->
 <div id="particles-js"></div>
 
 <div class="login-wrapper">
 
-    <section class="info-panel">
-        <span class="badge-tag">Restaurant POS MVP</span>
-        <h1 class="info-title">Login, branch flow va checkout bilan ishlaydigan birinchi versiya</h1>
-        <p class="info-desc">
-            Tizimda admin, manager va cashier rollari tayyor. Branchlar, stollar,
-            kategoriya, mahsulot, order, payment, receipt va basic report oqimi
-            bitta loyihada jamlangan.
+    <section class="soft-panel">
+        <p class="text-xs uppercase tracking-wide text-amber-300">Restaurant POS MVP</p>
+        <h1 class="mt-4 text-2xl font-semibold text-white">
+            Login, branch flow va checkout bilan ishlaydigan birinchi versiya
+        </h1>
+        <p class="mt-4 text-sm leading-7 text-slate-300">
+            Tizimda admin, manager, cashier, waiter, chef va bartender rollari tayyor. Front-of-house, kitchen, bar, payment va basic report oqimi bitta loyihada jamlangan.
         </p>
 
         <div class="role-cards">
@@ -220,6 +180,9 @@ body, html {
                 ['role'=>'Admin','user'=>'admin','pass'=>'admin456'],
                 ['role'=>'Manager','user'=>'manager','pass'=>'manager456'],
                 ['role'=>'Cashier','user'=>'cashier','pass'=>'cashier456'],
+                ['role'=>'Waiter','user'=>'waiter','pass'=>'waiter456'],
+                ['role'=>'Chef','user'=>'chef','pass'=>'chef456'],
+                ['role'=>'Bartender','user'=>'bartender','pass'=>'bartender456'],
             ] as $cred)
             <button type="button" class="role-card"
                     data-login="{{ $cred['user'] }}"
@@ -250,6 +213,7 @@ body, html {
                     <button type="button" class="toggle-pw">👁️</button>
                 </div>
 
+                <br>
                 <button type="submit" class="submit-btn">Kirish</button>
             </form>
         </div>
@@ -257,27 +221,33 @@ body, html {
 
 </div>
 
-<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js" defer></script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    // Toggle password
-    const toggle=document.querySelector(".toggle-pw");
-    const password=document.getElementById("password");
-    toggle.addEventListener("click",function(){
-        password.type = password.type==="password"?"text":"password";
+    // Toggle password ko'rsatish/yashirish
+    const toggle = document.querySelector(".toggle-pw");
+    const passwordInput = document.getElementById("password");
+
+    toggle.addEventListener("click", function() {
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            toggle.textContent = "🙈"; // icon o'zgartirish
+        } else {
+            passwordInput.type = "password";
+            toggle.textContent = "👁️"; // iconni qaytarish
+        }
     });
 
-    // Autofill roles
-    document.querySelectorAll(".role-card").forEach(card=>{
-        card.addEventListener("click", function(){
+    // Role card bosilganda login formga auto-fill va submit
+    document.querySelectorAll(".role-card").forEach(card => {
+        card.addEventListener("click", function() {
             document.getElementById("login").value = this.dataset.login;
             document.getElementById("password").value = this.dataset.password;
             document.getElementById("loginForm").submit();
         });
     });
 
-    // Particle.js
+    // Particles.js
     particlesJS('particles-js', {
         "particles": {
             "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
@@ -298,4 +268,4 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 
-@endsection
+@endsection 
