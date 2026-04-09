@@ -2,9 +2,11 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BranchController;
+use App\Http\Controllers\CabinetController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DiningTableController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\ReportController;
@@ -12,31 +14,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StaffController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    if (! auth()->check()) {
-        return redirect()->route('login');
-    }
-
-    $user = auth()->user();
-
-    if ($user->hasPermission('reports.view')) {
-        return redirect()->route('dashboard');
-    }
-
-    if ($user->hasPermission('waiter.panel')) {
-        return redirect()->route('waiter.index');
-    }
-
-    if ($user->hasPermission('kitchen.view')) {
-        return redirect()->route('kitchen.index');
-    }
-
-    if ($user->hasPermission('bar.view')) {
-        return redirect()->route('bar.index');
-    }
-
-    return redirect()->route('pos.index');
-})->name('home');
+Route::get('/', HomeController::class)->name('home');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'create'])->name('login');
@@ -47,6 +25,8 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
+
+    Route::get('/cabinet', CabinetController::class)->name('cabinet');
 
     Route::get('/dashboard', DashboardController::class)
         ->middleware('can:dashboard.view')

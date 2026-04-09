@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Events\OperationsUpdated;
 use App\Models\Branch;
 use App\Models\Category;
 use App\Models\DiningTable;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class PosDashboard extends Component
@@ -223,6 +225,12 @@ class PosDashboard extends Component
         });
 
         $this->resetCheckoutState();
+        OperationsUpdated::dispatch(
+            type: 'pos.order.checked_out',
+            branchId: $order->branch_id,
+            orderId: $order->id,
+            meta: ['order_type' => $order->order_type],
+        );
         session()->flash('status', 'Order muvaffaqiyatli yaratildi.');
 
         return redirect()->route('orders.receipt', $order);
@@ -294,6 +302,12 @@ class PosDashboard extends Component
         $this->selectedServiceOrderId = $result['order']->id;
         $this->selectedSplitId = $result['order']->splits->first()?->id;
         $this->resetErrorBag(['selectedServiceOrderId', 'selectedSplitId']);
+        OperationsUpdated::dispatch(
+            type: 'pos.split.created',
+            branchId: $result['order']->branch_id,
+            orderId: $result['order']->id,
+            meta: ['split_count' => $validated['splitCount']],
+        );
         session()->flash('status', "Equal split yaratildi: {$validated['splitCount']} qism.");
     }
 
@@ -401,6 +415,12 @@ class PosDashboard extends Component
             : $result['order']->splits->firstWhere('status', 'draft')?->id;
 
         $this->resetErrorBag(['selectedServiceOrderId', 'selectedSplitId']);
+        OperationsUpdated::dispatch(
+            type: 'pos.split.paid',
+            branchId: $result['order']->branch_id,
+            orderId: $result['order']->id,
+            meta: ['all_paid' => $result['all_paid']],
+        );
         session()->flash(
             'status',
             $result['all_paid']
@@ -480,6 +500,11 @@ class PosDashboard extends Component
 
         $this->resetErrorBag('selectedServiceOrderId');
         $this->selectedServiceOrderId = $result['order']->id;
+        OperationsUpdated::dispatch(
+            type: 'pos.order.paid',
+            branchId: $result['order']->branch_id,
+            orderId: $result['order']->id,
+        );
         session()->flash('status', "Waiter order to'landi. Endi stolni close qilishingiz mumkin.");
 
         return null;
@@ -515,6 +540,8 @@ class PosDashboard extends Component
 
             return [
                 'state' => 'closed',
+                'branch_id' => $order->branch_id,
+                'order_id' => $order->id,
             ];
         });
 
@@ -533,7 +560,18 @@ class PosDashboard extends Component
         $this->selectedServiceOrderId = null;
         $this->selectedSplitId = null;
         $this->resetErrorBag(['selectedServiceOrderId', 'selectedSplitId']);
+        OperationsUpdated::dispatch(
+            type: 'pos.order.closed',
+            branchId: $result['branch_id'] ?? $this->branchId,
+            orderId: $result['order_id'] ?? $validated['selectedServiceOrderId'],
+        );
         session()->flash('status', "Stol muvaffaqiyatli yopildi va order arxivga o'tdi.");
+    }
+
+    #[On('operations-updated')]
+    public function syncFromRealtime(): void
+    {
+        // Re-render the cashier dashboard when live updates arrive.
     }
 
     protected function availableTables(): Collection

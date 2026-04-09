@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Events\OperationsUpdated;
 use App\Models\Branch;
 use App\Models\Category;
 use App\Models\DiningTable;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class WaiterPanel extends Component
@@ -150,7 +152,10 @@ class WaiterPanel extends Component
 
             $order->refreshPreparationStatus();
 
-            return ['state' => 'sent'];
+            return [
+                'state' => 'sent',
+                'order_id' => $order->id,
+            ];
         });
 
         if ($result['state'] === 'awaiting_close') {
@@ -158,6 +163,13 @@ class WaiterPanel extends Component
 
             return;
         }
+
+        OperationsUpdated::dispatch(
+            type: 'waiter.order.sent',
+            branchId: $this->branchId,
+            orderId: $result['order_id'] ?? null,
+            meta: ['table_id' => $table->id],
+        );
 
         $this->resetComposer();
         session()->flash('status', 'Zakaz oshxona va bar navbatiga yuborildi.');
@@ -191,7 +203,20 @@ class WaiterPanel extends Component
             $order->refreshPreparationStatus();
         });
 
+        OperationsUpdated::dispatch(
+            type: 'waiter.order.served',
+            branchId: $order->branch_id,
+            orderId: $order->id,
+            meta: ['ready_count' => $readyItems->count()],
+        );
+
         session()->flash('status', 'Tayyor itemlar mijozga topshirildi.');
+    }
+
+    #[On('operations-updated')]
+    public function syncFromRealtime(): void
+    {
+        // Re-render the waiter terminal when operational state changes.
     }
 
     protected function availableTables(): Collection

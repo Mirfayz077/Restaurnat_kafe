@@ -10,7 +10,7 @@
     @livewireStyles
     @vite(['resources/scss/app.scss', 'resources/js/app.js'])
 </head>
-<body class="app-shell text-slate-100 antialiased" data-theme="night">
+<body class="app-shell text-slate-100 antialiased" data-theme="night" data-realtime="enabled">
     <div class="mx-auto flex min-h-screen w-full max-w-[1700px] flex-col px-4 py-4 sm:px-6 lg:flex-row lg:px-8">
         <aside class="soft-panel mb-4 rounded-[2rem] border border-white/10 p-4 lg:mb-0 lg:w-80 lg:p-6">
             <div class="rounded-[1.5rem] border border-amber-400/20 bg-amber-400/10 p-4">
@@ -25,6 +25,11 @@
             </div>
 
             <nav class="mt-6 space-y-2 text-sm">
+                <a href="{{ route('cabinet') }}" class="flex items-center justify-between rounded-2xl border px-4 py-3 transition {{ request()->routeIs('cabinet') ? 'border-amber-300/40 bg-amber-400/10 text-white' : 'border-white/10 bg-slate-950/40 text-slate-300 hover:border-white/20 hover:text-white' }}">
+                    <span>Cabinet</span>
+                    <span class="badge badge-outline">00</span>
+                </a>
+
                 @can('dashboard.view')
                     <a href="{{ route('dashboard') }}" class="flex items-center justify-between rounded-2xl border px-4 py-3 transition {{ request()->routeIs('dashboard') ? 'border-amber-300/40 bg-amber-400/10 text-white' : 'border-white/10 bg-slate-950/40 text-slate-300 hover:border-white/20 hover:text-white' }}">
                         <span>Dashboard</span>

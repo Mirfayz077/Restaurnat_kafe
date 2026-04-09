@@ -17,7 +17,7 @@ class LoginTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_admin_is_redirected_to_dashboard_after_login(): void
+    public function test_admin_is_redirected_to_cabinet_after_login(): void
     {
         $this->seed(RestaurantPosSeeder::class);
 
@@ -26,11 +26,11 @@ class LoginTest extends TestCase
             'password' => 'admin456',
         ]);
 
-        $response->assertRedirect(route('dashboard'));
+        $response->assertRedirect(route('cabinet'));
         $this->assertAuthenticated();
     }
 
-    public function test_cashier_is_redirected_to_pos_after_login(): void
+    public function test_cashier_is_redirected_to_cabinet_after_login(): void
     {
         $this->seed(RestaurantPosSeeder::class);
 
@@ -39,11 +39,11 @@ class LoginTest extends TestCase
             'password' => 'cashier456',
         ]);
 
-        $response->assertRedirect(route('pos.index'));
+        $response->assertRedirect(route('cabinet'));
         $this->assertAuthenticated();
     }
 
-    public function test_waiter_is_redirected_to_waiter_panel_after_login(): void
+    public function test_waiter_is_redirected_to_cabinet_after_login(): void
     {
         $this->seed(RestaurantPosSeeder::class);
 
@@ -52,7 +52,7 @@ class LoginTest extends TestCase
             'password' => 'waiter456',
         ]);
 
-        $response->assertRedirect(route('waiter.index'));
+        $response->assertRedirect(route('cabinet'));
         $this->assertAuthenticated();
     }
 }
