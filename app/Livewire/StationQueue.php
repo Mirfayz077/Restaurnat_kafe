@@ -2,11 +2,13 @@
 
 namespace App\Livewire;
 
+use App\Events\OperationsUpdated;
 use App\Models\Branch;
 use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class StationQueue extends Component
@@ -39,6 +41,14 @@ class StationQueue extends Component
             $item->order->refreshPreparationStatus();
         });
 
+        OperationsUpdated::dispatch(
+            type: 'station.item.preparing',
+            branchId: $item->order->branch_id,
+            orderId: $item->order_id,
+            station: $this->station,
+            meta: ['item_id' => $item->id],
+        );
+
         session()->flash('status', 'Item tayyorlashga olindi.');
     }
 
@@ -57,7 +67,21 @@ class StationQueue extends Component
             $item->order->refreshPreparationStatus();
         });
 
-        session()->flash('status', 'Item tayyor bo‘ldi.');
+        OperationsUpdated::dispatch(
+            type: 'station.item.ready',
+            branchId: $item->order->branch_id,
+            orderId: $item->order_id,
+            station: $this->station,
+            meta: ['item_id' => $item->id],
+        );
+
+        session()->flash('status', 'Item tayyor bo\'ldi.');
+    }
+
+    #[On('operations-updated')]
+    public function syncFromRealtime(): void
+    {
+        // Re-render the queue when Reverb broadcasts an operational change.
     }
 
     protected function findItem(int $itemId, array $allowedStatuses): OrderItem

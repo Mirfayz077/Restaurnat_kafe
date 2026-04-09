@@ -1,4 +1,5 @@
 import './bootstrap';
+import './realtime';
 import Alpine from 'alpinejs';
 import { initFlowbite } from 'flowbite';
 import Swiper from 'swiper';

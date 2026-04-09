@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\OperationsUpdated;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
@@ -31,10 +32,16 @@ class ProductController extends Controller
             'is_active' => ['nullable', 'boolean'],
         ]);
 
-        Product::create([
+        $product = Product::create([
             ...$validated,
             'is_active' => $request->boolean('is_active'),
         ]);
+
+        OperationsUpdated::dispatch(
+            type: 'menu.updated',
+            station: $product->station,
+            meta: ['product_id' => $product->id, 'action' => 'created'],
+        );
 
         return back()->with('status', "Mahsulot qo'shildi.");
     }
@@ -56,12 +63,26 @@ class ProductController extends Controller
             'is_active' => $request->boolean('is_active'),
         ]);
 
+        OperationsUpdated::dispatch(
+            type: 'menu.updated',
+            station: $product->station,
+            meta: ['product_id' => $product->id, 'action' => 'updated'],
+        );
+
         return back()->with('status', 'Mahsulot yangilandi.');
     }
 
     public function destroy(Product $product): RedirectResponse
     {
+        $station = $product->station;
+        $productId = $product->id;
         $product->delete();
+
+        OperationsUpdated::dispatch(
+            type: 'menu.updated',
+            station: $station,
+            meta: ['product_id' => $productId, 'action' => 'deleted'],
+        );
 
         return back()->with('status', "Mahsulot o'chirildi.");
     }

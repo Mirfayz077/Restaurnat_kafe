@@ -6,10 +6,12 @@ use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
-    public function test_guest_is_redirected_to_login_from_home(): void
+    public function test_guest_can_open_public_home_page(): void
     {
         $response = $this->get('/');
 
-        $response->assertRedirect(route('login'));
+        $response
+            ->assertOk()
+            ->assertSee('Restoran uchun bitta asosiy sahifa');
     }
 }
