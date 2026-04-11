@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="space-y-6">
+    <div class="min-h-screen overflow-y-auto space-y-6">
         <section class="soft-panel rounded-[2rem] border border-white/10 p-6 lg:p-8">
             <div class="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
                 <div>

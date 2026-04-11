@@ -9,8 +9,8 @@
 
     @vite(['resources/scss/app.scss', 'resources/js/app.js'])
 </head>
-<body class="app-shell min-h-screen bg-slate-950 text-slate-100 antialiased">
-    <main class="mx-auto flex min-h-screen w-full max-w-7xl items-center px-4 py-8 sm:px-6 lg:px-8">
+<body class="app-shell min-h-screen overflow-y-auto text-slate-100 antialiased">
+    <main class="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 py-8 sm:px-6 lg:px-8">
         @yield('content')
     </main>
 </body>
