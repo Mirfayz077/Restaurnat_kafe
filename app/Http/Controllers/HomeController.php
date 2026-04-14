@@ -3,11 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
-use App\Models\Order;
-use App\Models\OrderItem;
+use App\Models\Category;
 use App\Models\Product;
-use App\Models\Role;
-use App\Models\User;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
@@ -15,73 +13,152 @@ class HomeController extends Controller
 {
     public function __invoke(): View
     {
-        $today = now()->toDateString();
-        $hasOperationalTables = collect([
-            'branches',
-            'products',
-            'roles',
-            'users',
-            'orders',
-            'order_items',
-        ])->every(fn (string $table) => Schema::hasTable($table));
-
-        $activeItemsQuery = $hasOperationalTables
-            ? OrderItem::query()->whereHas('order', fn ($query) => $query->whereIn('status', Order::activeStatuses()))
-            : null;
-
-        return view('home', [
-            'stats' => [
-                'branches' => $hasOperationalTables ? Branch::where('is_active', true)->count() : 0,
-                'menuItems' => $hasOperationalTables ? Product::where('is_active', true)->count() : 0,
-                'roles' => $hasOperationalTables ? Role::count() : 0,
-                'staff' => $hasOperationalTables ? User::count() : 0,
-                'ordersToday' => $hasOperationalTables ? Order::whereDate('placed_at', $today)->count() : 0,
-                'readyItems' => $activeItemsQuery ? (clone $activeItemsQuery)->where('preparation_status', 'ready')->sum('quantity') : 0,
+        $categoryThemes = [
+            'burgers' => [
+                'theme' => 'is-espresso',
+                'cue' => 'Grill comfort',
+                'summary' => "Restoran uchun bitta asosiy sahifa endi burgerlarni tez topish, solishtirish va buyurtma berishga qulay vitringa aylandi.",
             ],
-            'roleHighlights' => [
-                [
-                    'label' => 'Manager / Admin',
-                    'summary' => "Zakazlar, itemlar, filiallar va jamoa ustidan to'liq nazorat.",
-                    'points' => ['Live monitoring', 'Catalog control', 'Reports and analytics'],
-                ],
-                [
-                    'label' => 'Cashier',
-                    'summary' => "Checkout, settlement, split bill va stol close jarayonlari bitta joyda.",
-                    'points' => ['POS terminal', 'Receipt flow', 'Table settlement'],
-                ],
-                [
-                    'label' => 'Waiter',
-                    'summary' => "Stollar holati, yangi ticket yuborish va ready itemlarni serve qilish uchun qulay panel.",
-                    'points' => ['Table status', 'Kitchen / bar send', 'Ready-to-serve tracking'],
-                ],
-                [
-                    'label' => 'Chef / Bartender',
-                    'summary' => "Kelgan zakazlarni navbat asosida qabul qilish va yangi menu itemlarni kuzatish.",
-                    'points' => ['Station queue', 'Queued / preparing / ready', 'Latest menu items'],
+            'hot-dishes' => [
+                'theme' => 'is-saffron',
+                'cue' => 'Kitchen classics',
+                'summary' => "Issiq taomlar bo'limi oilaviy tushlik va kechki ovqat uchun asosiy tanlovlarni ixcham ko'rsatadi.",
+            ],
+            'drinks' => [
+                'theme' => 'is-olive',
+                'cue' => 'Coffee and bar',
+                'summary' => "Qahva, limonad va ichimliklarni bir joyda ko'rib, taomga mos pairing tanlash oson bo'ladi.",
+            ],
+            'desserts' => [
+                'theme' => 'is-rose',
+                'cue' => 'Sweet finish',
+                'summary' => "Desertlar yakuniy tanlov sifatida alohida bo'limda turadi va mijozga tez qaror qabul qilishga yordam beradi.",
+            ],
+        ];
+
+        $fallbackMenuCatalog = collect([
+            [
+                'name' => 'Burgers',
+                'slug' => 'burgers',
+                'count' => 2,
+                'theme' => 'is-espresso',
+                'cue' => 'Grill comfort',
+                'summary' => $categoryThemes['burgers']['summary'],
+                'items' => [
+                    ['id' => 'bg-001', 'name' => 'Classic Burger', 'description' => 'Beef patty, cheese, fries', 'price' => 42000, 'station' => 'Kitchen', 'sku' => 'BG-001'],
+                    ['id' => 'bg-002', 'name' => 'Chicken Burger', 'description' => 'Crispy chicken, lettuce, sauce', 'price' => 39000, 'station' => 'Kitchen', 'sku' => 'BG-002'],
                 ],
             ],
-            'serviceFlow' => [
-                [
-                    'step' => '01',
-                    'title' => 'Waiter zakaz yuboradi',
-                    'description' => "Stolga bog'langan itemlar avtomatik kitchen yoki barga jo'natiladi.",
+            [
+                'name' => 'Hot Dishes',
+                'slug' => 'hot-dishes',
+                'count' => 2,
+                'theme' => 'is-saffron',
+                'cue' => 'Kitchen classics',
+                'summary' => $categoryThemes['hot-dishes']['summary'],
+                'items' => [
+                    ['id' => 'hd-001', 'name' => 'Lagman', 'description' => 'Traditional noodle bowl', 'price' => 36000, 'station' => 'Kitchen', 'sku' => 'HD-001'],
+                    ['id' => 'hd-002', 'name' => 'Shashlik Set', 'description' => 'Three skewers and garnish', 'price' => 54000, 'station' => 'Kitchen', 'sku' => 'HD-002'],
                 ],
-                [
-                    'step' => '02',
-                    'title' => 'Chef / barmen qabul qiladi',
-                    'description' => "Kelgan itemlar queued, preparing va ready bosqichlarida yuradi.",
+            ],
+            [
+                'name' => 'Drinks',
+                'slug' => 'drinks',
+                'count' => 2,
+                'theme' => 'is-olive',
+                'cue' => 'Coffee and bar',
+                'summary' => $categoryThemes['drinks']['summary'],
+                'items' => [
+                    ['id' => 'dr-001', 'name' => 'Americano', 'description' => 'Freshly brewed coffee', 'price' => 18000, 'station' => 'Bar', 'sku' => 'DR-001'],
+                    ['id' => 'dr-002', 'name' => 'Lemonade', 'description' => 'House-made cold lemonade', 'price' => 16000, 'station' => 'Bar', 'sku' => 'DR-002'],
                 ],
-                [
-                    'step' => '03',
-                    'title' => 'Cashier yakunlaydi',
-                    'description' => "Full payment, split bill va stolni close qilish oqimi tayyor.",
-                ],
-                [
-                    'step' => '04',
-                    'title' => 'Manager monitoring qiladi',
-                    'description' => "Mahsulotlar, xodimlar, zakazlar va hisobotlar role-based kabinetlardan boshqariladi.",
+            ],
+            [
+                'name' => 'Desserts',
+                'slug' => 'desserts',
+                'count' => 1,
+                'theme' => 'is-rose',
+                'cue' => 'Sweet finish',
+                'summary' => $categoryThemes['desserts']['summary'],
+                'items' => [
+                    ['id' => 'ds-001', 'name' => 'Cheesecake', 'description' => 'Berry cheesecake slice', 'price' => 22000, 'station' => 'Kitchen', 'sku' => 'DS-001'],
                 ],
             ],
         ]);
+
+        $menuCatalog = $this->hasMenuTables()
+            ? $this->buildMenuCatalog($categoryThemes)
+            : $fallbackMenuCatalog;
+
+        if ($menuCatalog->isEmpty()) {
+            $menuCatalog = $fallbackMenuCatalog;
+        }
+
+        return view('home', [
+            'menuCatalog' => $menuCatalog,
+            'stats' => [
+                'branches' => Schema::hasTable('branches') ? Branch::where('is_active', true)->count() : 1,
+                'sections' => $menuCatalog->count(),
+                'menuItems' => $menuCatalog->sum('count'),
+            ],
+        ]);
+    }
+
+    protected function hasMenuTables(): bool
+    {
+        return collect(['categories', 'products'])->every(
+            fn (string $table) => Schema::hasTable($table)
+        );
+    }
+
+    /**
+     * @param  array<string, array{theme: string, cue: string, summary: string}>  $categoryThemes
+     * @return Collection<int, array{name: string, slug: string, count: int, theme: string, cue: string, summary: string, items: array<int, array{id: int|string, name: string, description: ?string, price: float, station: string, sku: string}>}>
+     */
+    protected function buildMenuCatalog(array $categoryThemes): Collection
+    {
+        $categories = Category::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->withCount([
+                'products' => fn ($query) => $query->where('is_active', true),
+            ])
+            ->get();
+
+        $products = Product::query()
+            ->where('is_active', true)
+            ->orderBy('category_id')
+            ->orderBy('name')
+            ->get()
+            ->groupBy('category_id');
+
+        return $categories->map(function (Category $category) use ($categoryThemes, $products) {
+            $meta = $categoryThemes[$category->slug] ?? [
+                'theme' => 'is-espresso',
+                'cue' => 'House picks',
+                'summary' => "Mijoz uchun eng muhim itemlar birinchi ko'rinadigan, tez ko'rib chiqiladigan menyu bo'limi.",
+            ];
+
+            return [
+                'name' => $category->name,
+                'slug' => $category->slug,
+                'count' => (int) $category->products_count,
+                'theme' => $meta['theme'],
+                'cue' => $meta['cue'],
+                'summary' => $meta['summary'],
+                'items' => $products
+                    ->get($category->id, collect())
+                    ->map(fn (Product $product) => [
+                        'id' => $product->id,
+                        'name' => $product->name,
+                        'description' => $product->description,
+                        'price' => (float) $product->price,
+                        'station' => $product->stationLabel(),
+                        'sku' => $product->sku,
+                    ])
+                    ->values()
+                    ->all(),
+            ];
+        })->values();
     }
 }
